@@ -13,11 +13,11 @@ When tests are run from Visual Studio Test Explorer it does not modify the test 
 
 We are a small team of engineers and designers dedicated to building beautiful, functional, and well-engineered software solutions. We offer very competitive rates as well as fixed-price contracts and welcome inquiries to discuss any custom development / project support needs you may have.
 
-This package is part of our **Singulink Libraries** collection. Visit https://github.com/Singulink to see our full list of publicly available libraries and other open-source projects.
+Visit https://github.com/Singulink to see our full list of publicly available libraries and other open-source projects.
 
 ## Installation
 
-The package is available on NuGet - simply install the `Singulink.Reflection.ObjectFactory` package.
+The package is available on NuGet - simply install the `PrefixClassName.MsTest` package.
 
 **Supported Runtimes**: Anywhere .NET Standard 2.0+ is supported, including:
 - .NET
