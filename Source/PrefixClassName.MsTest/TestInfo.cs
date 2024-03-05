@@ -1,7 +1,12 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Windows.Win32;
+using Windows.Win32.System.Diagnostics.ToolHelp;
 
 namespace PrefixClassName.MsTest;
 
@@ -79,38 +84,68 @@ internal static class TestInfo
 
     private static bool DetectIfRunningInTestExplorer()
     {
+#if NET
+        if (!OperatingSystem.IsWindowsVersionAtLeast(5, 1, 2600))
+            return false;
+
+        int processId = Environment.ProcessId;
+#else
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             return false;
 
-#if NET
-        int processId = Environment.ProcessId;
-#else
         int processId = Process.GetCurrentProcess().Id;
 #endif
+        if (!TryGetParentProcess(processId, out var testRunnnerProcess))
+            return false;
 
-        var wmicStartInfo = new ProcessStartInfo
-        {
-            FileName = "wmic",
-            Arguments = $"process where (processid={processId}) get parentprocessid",
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-        };
-
-        try
-        {
-            var wmicProcess = Process.Start(wmicStartInfo)!;
-            wmicProcess.StandardOutput.ReadLine(); // Skip the header line
-            string parentProcessIdString = wmicProcess.StandardOutput.ReadToEnd()!.Trim();
-
-            int parentProcessId = int.Parse(parentProcessIdString);
-            var parentProcess = Process.GetProcessById(parentProcessId);
-
-            return parentProcess.ProcessName == "vstest.console";
-        }
-        catch
+        if (!testRunnnerProcess.ProcessName.Equals("vstest.console", StringComparison.OrdinalIgnoreCase) ||
+            !TryGetParentProcess(testRunnnerProcess.Id, out var hostProcess))
         {
             return false;
         }
+
+        return hostProcess.ProcessName.Equals("ServiceHub.TestWindowStoreHost", StringComparison.OrdinalIgnoreCase);
+    }
+
+    [SupportedOSPlatform("windows5.1.2600")]
+    private static bool TryGetParentProcess(int processId, [MaybeNullWhen(false)] out Process process)
+    {
+        if (TryGetParentProcessId(processId, out int parentProcessId))
+        {
+            process = Process.GetProcessById(parentProcessId);
+            return true;
+        }
+
+        process = default;
+        return false;
+    }
+
+    [SupportedOSPlatform("windows5.1.2600")]
+    private static unsafe bool TryGetParentProcessId(int processId, out int parentProcessId)
+    {
+        using var hSnapshot = PInvoke.CreateToolhelp32Snapshot_SafeHandle(CREATE_TOOLHELP_SNAPSHOT_FLAGS.TH32CS_SNAPPROCESS, (uint)processId);
+
+        if (hSnapshot.IsInvalid)
+            throw new Win32Exception();
+
+        var process = new PROCESSENTRY32 { dwSize = (uint)sizeof(PROCESSENTRY32) };
+
+        if (!PInvoke.Process32First(hSnapshot, ref process))
+        {
+            parentProcessId = default;
+            return false;
+        }
+
+        do
+        {
+            if (process.th32ProcessID == (uint)processId)
+            {
+                parentProcessId = (int)process.th32ParentProcessID;
+                return true;
+            }
+        } while (PInvoke.Process32Next(hSnapshot, ref process));
+
+        parentProcessId = default;
+        return false;
     }
 }

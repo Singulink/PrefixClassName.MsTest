@@ -7,7 +7,7 @@
 
 If the test classes are all in the same namespace then the namespace is omitted. If the test classes are nested in different namespaces, it will output only the part of the namespace that differs between the classes.
 
-When tests are run from Visual Studio Test Explorer it does not modify the test name since Test Explorer can group the tests by namespace and class name. Running the tests with `dotnet test` shows the class name prefixes in the console output.
+When tests are run from Visual Studio Test Explorer it does not modify the test name since Test Explorer can group the tests by namespace and class name. Running the tests with `dotnet test` or `vstest.console` shows the class name prefixes in the console output.
 
 ### About Singulink
 
