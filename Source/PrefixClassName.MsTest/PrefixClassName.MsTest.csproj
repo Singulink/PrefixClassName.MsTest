@@ -5,11 +5,11 @@
 
 		<SignAssembly>true</SignAssembly>
 		<AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
-		<Version>1.0.0</Version>
+		<Version>1.0.2</Version>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageTags>MSTest; class name; display; show</PackageTags>
 		<Description>Adds the name of test classes to each test name.</Description>
-		<PackageProjectUrl>https://github.com/Singulink/Singulink.Globalization.Currency</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/Singulink/PrefixClassName.MsTest</PackageProjectUrl>
 	</PropertyGroup>
 
 	<ItemGroup>
