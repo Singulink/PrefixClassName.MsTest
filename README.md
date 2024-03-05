@@ -5,9 +5,9 @@
 
 **PrefixClassName.MsTest** provides a `[PrefixTestClass]` attribute that can be used in place of `[TestClass]` to prefix the test name with the class name in MSTest v2+ for easier debugging when reading console or CI test results.
 
-If the test classes are all in the same namespace then the namespace is ommited. If the test classes are nested in different namespaces, it will output only the part of the namespace that differs between the classes.
+If the test classes are all in the same namespace then the namespace is omitted. If the test classes are nested in different namespaces, it will output only the part of the namespace that differs between the classes.
 
-When tests are run from Visual Studio Test Explorer it does not modify the test name since Test Explorer can group the tests by namespace and class name.
+When tests are run from Visual Studio Test Explorer it does not modify the test name since Test Explorer can group the tests by namespace and class name. Running the tests with `dotnet test` shows the class name prefixes in the console output.
 
 ### About Singulink
 
