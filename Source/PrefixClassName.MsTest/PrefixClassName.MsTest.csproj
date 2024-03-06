@@ -5,7 +5,7 @@
 
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
-        <Version>1.1</Version>
+        <Version>1.1.1</Version>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageTags>MSTest; class name; display; show</PackageTags>
         <Description>Adds the name of test classes to each test name.</Description>
@@ -26,5 +26,9 @@
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
         <PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="All" />
         <PackageReference Include="System.Memory" Version="4.5.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Update="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     </ItemGroup>
 </Project>

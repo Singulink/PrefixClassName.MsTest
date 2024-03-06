@@ -96,15 +96,31 @@ internal static class TestInfo
         int processId = Process.GetCurrentProcess().Id;
 #endif
         if (!TryGetParentProcess(processId, out var testRunnnerProcess))
-            return false;
-
-        if (!testRunnnerProcess.ProcessName.Equals("vstest.console", StringComparison.OrdinalIgnoreCase) ||
-            !TryGetParentProcess(testRunnnerProcess.Id, out var hostProcess))
         {
+            Trace.TraceInformation("[PrefixClassName.MsTest] Parent test runner process not found - prefix enabled.");
             return false;
         }
 
-        return hostProcess.ProcessName.Equals("ServiceHub.TestWindowStoreHost", StringComparison.OrdinalIgnoreCase);
+        if (!testRunnnerProcess.ProcessName.Equals("vstest.console", StringComparison.OrdinalIgnoreCase))
+        {
+            Trace.TraceInformation("[PrefixClassName.MsTest] Not running in vstest.console - prefix enabled.");
+            return false;
+        }
+
+        if (!TryGetParentProcess(testRunnnerProcess.Id, out var hostProcess))
+        {
+            Trace.TraceInformation("[PrefixClassName.MsTest] Test runner host process not found - prefix enabled.");
+            return false;
+        }
+
+        if (!hostProcess.ProcessName.Equals("ServiceHub.TestWindowStoreHost", StringComparison.OrdinalIgnoreCase))
+        {
+            Trace.TraceInformation("[PrefixClassName.MsTest] Not running in VS Test Explorer window - prefix enabled.");
+            return false;
+        }
+
+        Trace.TraceInformation("[PrefixClassName.MsTest] Running in VS Test Explorer window - prefix disabled.");
+        return true;
     }
 
     [SupportedOSPlatform("windows5.1.2600")]
@@ -121,20 +137,17 @@ internal static class TestInfo
     }
 
     [SupportedOSPlatform("windows5.1.2600")]
-    private static unsafe bool TryGetParentProcessId(int processId, out int parentProcessId)
+    private static bool TryGetParentProcessId(int processId, out int parentProcessId)
     {
-        using var hSnapshot = PInvoke.CreateToolhelp32Snapshot_SafeHandle(CREATE_TOOLHELP_SNAPSHOT_FLAGS.TH32CS_SNAPPROCESS, (uint)processId);
+        using var hSnapshot = PInvoke.CreateToolhelp32Snapshot_SafeHandle(CREATE_TOOLHELP_SNAPSHOT_FLAGS.TH32CS_SNAPPROCESS, 0);
 
         if (hSnapshot.IsInvalid)
-            throw new Win32Exception();
+            return SoftFail("Failed to create snapshot of processes", out parentProcessId);
 
-        var process = new PROCESSENTRY32 { dwSize = (uint)sizeof(PROCESSENTRY32) };
+        var process = new PROCESSENTRY32 { dwSize = (uint)Marshal.SizeOf(typeof(PROCESSENTRY32)) };
 
         if (!PInvoke.Process32First(hSnapshot, ref process))
-        {
-            parentProcessId = default;
-            return false;
-        }
+            return SoftFail("Failed to get processes from snapshot", out parentProcessId);
 
         do
         {
@@ -143,9 +156,22 @@ internal static class TestInfo
                 parentProcessId = (int)process.th32ParentProcessID;
                 return true;
             }
-        } while (PInvoke.Process32Next(hSnapshot, ref process));
+        }
+        while (PInvoke.Process32Next(hSnapshot, ref process));
 
         parentProcessId = default;
         return false;
+
+        [DebuggerHidden]
+        static bool SoftFail(string message, out int parentProcessId)
+        {
+            int lastError = Marshal.GetLastWin32Error();
+            string errorMessage = new Win32Exception(lastError).Message;
+
+            Trace.TraceError($"[PrefixClassName.MsTest] {message} (error {lastError}): {errorMessage}");
+
+            parentProcessId = default;
+            return false;
+        }
     }
 }
