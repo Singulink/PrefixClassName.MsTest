@@ -28,7 +28,7 @@ internal static class TestInfo
 
             string commonPrefix = null;
 
-            foreach (var type in assembly.GetTypes().Where(t => t.IsPublic && !t.IsAbstract && t.GetCustomAttribute<TestClassAttribute>() != null))
+            foreach (var type in assembly.GetTypes().Where(t => (t.IsPublic || t.IsNestedPublic) && !t.IsAbstract && t.GetCustomAttribute<TestClassAttribute>() != null))
             {
                 string typeNamespace = type.Namespace;
 
@@ -38,15 +38,13 @@ internal static class TestInfo
                     break;
                 }
 
-                string typeName = type.FullName!;
-
                 if (commonPrefix == null)
                 {
                     commonPrefix = typeNamespace + ".";
                     continue;
                 }
 
-                var newCommonPrefix = GetCommonPrefix(commonPrefix.AsSpan(), typeName.AsSpan());
+                var newCommonPrefix = GetCommonPrefix(commonPrefix.AsSpan(), type.FullName!.AsSpan());
                 newCommonPrefix = newCommonPrefix[..(newCommonPrefix.LastIndexOf('.') + 1)];
 
                 if (newCommonPrefix.Length == 0)
