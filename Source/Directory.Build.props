@@ -15,10 +15,6 @@
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 	</PropertyGroup>
 
-	<ItemGroup Label="Source Link" Condition="'$(Configuration)' == 'Release'">
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
-	</ItemGroup>
-
 	<ItemGroup>
 		<None Include="..\..\Resources\Singulink Icon 128x128.png">
 			<Pack>True</Pack>
