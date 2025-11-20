@@ -29,6 +29,34 @@ The package is available on NuGet - simply install the `PrefixClassName.MsTest` 
 - Mono
 - Xamarin
 
+## Usage
+
+Replace all usages of `[TestClass]` with `[PrefixTestClass]` in your MSTest test classes:
+
+```cs
+[PrefixTestClass]
+public class MyTestClass
+{
+    [TestMethod]
+    public void MyTestMethod()
+    {
+        // Test code here
+    }
+}
+```
+
+You can ban usage of `[TestClass]` to prevent accidental usage of the non-prefixed attribute by adding [`BannedSymbols.txt`](Resources/BannedSymbols.txt) to the test project and the following to the `.csproj` file:
+
+```xml
+<ItemGroup>
+  <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" PrivateAssets="All" />
+  <AdditionalFiles Include="BannedSymbols.txt" />
+</ItemGroup>
+```
+
+See [Banned API Analyzers](https://github.com/dotnet/roslyn/blob/main/src/RoslynAnalyzers/Microsoft.CodeAnalysis.BannedApiAnalyzers/BannedApiAnalyzers.Help.md) documentation for more details.
+
+
 ## Sample Output
 
 ```
@@ -44,18 +72,4 @@ The package is available on NuGet - simply install the `PrefixClassName.MsTest` 
   Passed [ImmutableMoneySetTests.AddTests] AddMoney_CurrencyExists_UpdatesValue [2 ms]
   Passed [ImmutableMoneySetTests.AddTests] AddMoney_NewCurrency_AddsValue [< 1 ms]
   Passed [ImmutableMoneySetTests.AddTests] AddMoney_DefaultValue_NoChange [< 1 ms]
-```
-
-## API
-
-```cs
-[PrefixTestClass]
-public class MyTestClass
-{
-    [TestMethod]
-    public void MyTestMethod()
-    {
-        // Test code here
-    }
-}
 ```
