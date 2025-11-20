@@ -1,19 +1,22 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace PrefixClassName.MsTest;
+﻿namespace PrefixClassName.MsTest;
 
 internal class PrefixTestMethodAttribute : TestMethodAttribute
 {
     private readonly TestMethodAttribute _testMethodAttribute;
 
-    internal PrefixTestMethodAttribute(TestMethodAttribute testMethodAttribute)
+#pragma warning disable MSTEST0057 // TestMethodAttribute derived class should propagate source information
+
+    internal PrefixTestMethodAttribute(TestMethodAttribute testMethodAttribute, string callerFilePath, int callerLineNumber)
+        : base(callerFilePath, callerLineNumber)
     {
         _testMethodAttribute = testMethodAttribute;
     }
 
-    public override TestResult[] Execute(ITestMethod testMethod)
+#pragma warning restore MSTEST0057
+
+    public override async Task<TestResult[]> ExecuteAsync(ITestMethod testMethod)
     {
-        var results = _testMethodAttribute.Execute(testMethod);
+        var results = await _testMethodAttribute.ExecuteAsync(testMethod);
 
         if (TestInfo.RunningInTestExplorer)
             return results;

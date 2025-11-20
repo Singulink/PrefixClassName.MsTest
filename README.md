@@ -15,6 +15,10 @@ We are a small team of engineers and designers dedicated to building beautiful, 
 
 Visit https://github.com/Singulink to see our full list of publicly available libraries and other open-source projects.
 
+## Version Info
+
+PrefixTestClass v2 is compatible with MSTest v4+. Use PrefixTestClass v1 for earlier versions of MSTest.
+
 ## Installation
 
 The package is available on NuGet - simply install the `PrefixClassName.MsTest` package.
