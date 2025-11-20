@@ -93,19 +93,31 @@ internal static class TestInfo
 
         int processId = Process.GetCurrentProcess().Id;
 #endif
-        if (!TryGetParentProcess(processId, out var testRunnnerProcess))
+        if (!TryGetParentProcess(processId, out var testRunnerProcess))
         {
             Trace.TraceInformation("[PrefixClassName.MsTest] Parent test runner process not found - prefix enabled.");
             return false;
         }
 
-        if (!testRunnnerProcess.ProcessName.Equals("vstest.console", StringComparison.OrdinalIgnoreCase))
+        // VS2026
+        // Debug runs in devenv, Run runs in DevHub
+
+        if (testRunnerProcess.ProcessName.Equals("devenv", StringComparison.OrdinalIgnoreCase) ||
+            testRunnerProcess.ProcessName.Equals("DevHub", StringComparison.OrdinalIgnoreCase))
+        {
+            Trace.TraceInformation("[PrefixClassName.MsTest] Running in Visual Studio - prefix disabled.");
+            return true;
+        }
+
+        // VS2022
+
+        if (!testRunnerProcess.ProcessName.Equals("vstest.console", StringComparison.OrdinalIgnoreCase))
         {
             Trace.TraceInformation("[PrefixClassName.MsTest] Not running in vstest.console - prefix enabled.");
             return false;
         }
 
-        if (!TryGetParentProcess(testRunnnerProcess.Id, out var hostProcess))
+        if (!TryGetParentProcess(testRunnerProcess.Id, out var hostProcess))
         {
             Trace.TraceInformation("[PrefixClassName.MsTest] Test runner host process not found - prefix enabled.");
             return false;
