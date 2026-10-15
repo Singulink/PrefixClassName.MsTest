@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup Label="Weavers">
-    <PackageVersion Include="RuntimeNullables.Fody" Version="1.0.6" />
+    <PackageVersion Include="RuntimeNullables.Fody" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup Label="Testing">
